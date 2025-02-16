@@ -1,0 +1,52 @@
+Forecast {for Keighley} calls for {light rain} tomorrow. But today's clear and shiny, so grab your sun glasses and go out. 
+Just don't forget your coat, because it's windy outside.
+                     
+Acording the forecast, today will be clear 
+                    
+Forecast {for Keighley} calls for {light rain} today and tomorrow. Temperature will range between {min} and {max} degrees today, and will {drop/raise} to .
+Looks like it will be windy today, so don't forget your coat.
+                    
+"Forecast states for cloudy tomorrow, but no rain expected. Temperature will range between {min} and {max} degrees, with moderate wind comming from west. A light rain is expected on thirsday. 
+
+Forecast for Keighley states for overcast clouts today. Tomorow will be {light rain}, with temperature range between... and {moderate wind} comming for west.
+-- No rain expected this week.
+                    
+According the forecast, in Keighlwy will be overcast clouts today and tomorrow. Light rain expected at wenesday, with temperature range between... and strong winds comming from north. Sunrise is ... and sets at ..  
+
+==================================================================
+
+today_condition = {
+        'clear': [f"According the forecast, a {search_data[0]['weather'][0]['description']} expected in {town_name} today.", f"Forecast states for shiny day in {town_name} today."],
+        'clouds': [f"Forecast in {town_name} says it will be clouds today", f"Cloudy day today according the forecast for {town_name}."],
+        'rain': [f"{search_data[0]['weather'][0]['description']} expected in {town_name} today.", f"According the forecast, there will be raining in {town_name} today.", f"There will be {search_data[0]['weather'][0]['description']} in {town_name} today, according to forecast."],
+        'other': [f"{search_data[0]['weather'][0]['description']} expected in {town_name} today."]
+    }
+    today_tomorrow_condition = {
+        'clear': [f"Forecast in {town_name} states for clear sky today and tomorrow, promissing a chance for outdoor activities.", f"According the forecast, {search_data[0]['weather'][0]['description']} expected in {town_name} for today and tomorrow.", f"{town_name} will enjoy a nice weather today and tomorrow."],
+        'clouds': [f""],
+        'rain': [f"According the forecast, a {search_data[0]['weather'][0]['description']} expected in {town_name} today and tomorrow.", f"No sun for {town_name} today and tomorrow because a {search_data[0]['weather'][0]['description']} is expected."]
+    }
+    tomorrow_condition = {
+        'clear': [f"Tomorrow will be clear."],
+        'clouds': ["but tomorrow's clouds will cover the sky and let no shine.", f"{search_data[1]['weather'][0]['description']} will cover the sky tomorrow, but no rain expected.", "The sun will give a way to clouds tomorrow but no rain is expected."],
+        'rain': [f"However, a {search_data[1]['weather'][0]['description']} expected tomorrow.", f"Tomorrow there may be {search_data[1]['weather'][0]['main']}."],
+        'other': [f"However, a {search_data[1]['weather'][0]['description']} expected tomorrow.", f"For tomorrow, a {search_data[1]['weather'][0]['description']} is expected."],
+    }
+    third_day_condition = {
+        'clear': [f"On {third_day_name} will be clear.", f"Clear sky expected on {third_day_name}.", f"Cloudns will give away on {third_day_name}, promising a chance for outdoor activities."],
+        'clouds': [f"There will be {search_data[2]['weather'][0]['description']} on {third_day_name}, but no rain.", f"No rain expected on {third_day_name}."],
+        'rain': [f"On {third_day_name} will be raining, so keep your umbrella ready.", f"For {third_day_name} a {search_data[2]['weather'][0]['description']} is expected."],
+        'other': [f"Expected {search_data[2]['weather'][0]['main']} on {third_day_name}."],
+
+    }
+
+    current_condition = {
+        'clear': None,
+        'clouds': None,
+        'rain': [''],
+        'snow': None,
+        'thunderstorm': None,
+        'drizzle': None,
+        'tornado': None,
+    }
+                    

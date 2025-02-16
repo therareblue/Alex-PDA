@@ -1,0 +1,270 @@
+INSTALL ALL NEEDED FOR THE "ALEX" AI assistant controller
+ to run on Raspberry Pi 4 4Gb / 8G
+
+OS: UBUNTU DESKTOP 22.04 optimised for raspberry pi.
+computer-name: ... / ....
+user Name: ...
+username: ...
+password: ...
+
+
+sudo apt update
+sudo apt upgrade -y
+sudo apt install python3-pip
+
+=====================================================
+2. Enable SSH:
+
+sudo apt install openssh-server -y
+sudo systemctl status ssh
+sudo systemctl enable --now ssh
+
+#for removing macbook ssh copy (do this command on your macbook terminal):
+rm -f ~/.ssh/known_hosts
+
+
+=====================================================
+3. INSTALL I2C
+
+sudo apt update 
+sudo apt upgrade -y
+
+sudo apt install -y i2c-tools
+sudo pip3 install smbus2
+
+#check all i2c devices with:
+sudo i2cdetect -y 1
+
+------------------------------
+i2c address 0x77 is bme680
+
+#Installing BME680 sensor:
+sudo pip3 install bme680
+
+address 0x40 is Ina3221
+#for innna sensor just coppy the SDL_PY_INNA3221.py file to the main folder.
+#in this file the shunt resistor/s can be modified to match thise on board. (0.025 ohm)
+
+================================================================
+4. JPIO
+sudo apt install python3-lgpio //this is for controlling gpis pins in ubuntu
+sudo adduser alex dialout
+================================================================
+5. enable UART
+# UART is using to connect esp32 controller to Raspberry pi.
+# Esp32 has 3 uart ports (serial, serial1 and serial2). Serial is the Rx and Tx for programming, and for connecting to pi. Serial1 is for LORA, Serial2 is for GPS.
+
+sudo adduser alex tty
+
+#checkin...
+ls -ld /dev/tty
+ls -ld /media/<user>
+
+sudo usermod -a -G dialout alex
+sudo usermod -a -G tty alex
+
+#this will give rights to alex to run uart without sudo.
+#it is important because tts audio playback do not work under sudo!!
+
+#sudo pip3 uninstall serial #it is usualy not needed. The module is not installed
+sudo pip3 install pyserial
+
+edit the file /boot/firmware/config.txt to add line:
+ enable_uart=1
+
+#checking:
+ls -l /dev/serial*
+sudo cat /dev/serial0
+
+Connect UART TX (gpio14) to esp32 Rx
+Connect UART RX (gpio15) to esp32 Tx
+
+python:
+ser = serial.Serial(
+    port="/dev/serial0",
+    baudrate=115200,
+    bytesize=serial.EIGHTBITS,
+    parity=serial.PARITY_NONE,
+    stopbits=serial.STOPBITS_ONE,
+)
+
+-----------------------------------
+esp32:
+Serial.begin(115200);
+  while (!Serial);
+Serial.println(data);
+-----------------------------------
+esp32 GPS:
+connect gps green to pin16 (Rx)
+connect gps silver to pin17 (Tx)
+
+Serial2.begin(9200);
+delay(1000);
+if (!Serial2){
+  Serial.println("Serial2 did not start!!");      
+}
+
+================================================================
+6. Setup the fan -> to run on startup:
+
+sudo nano /etc/systemd/system/pifan.service
+---
+[Unit]
+   Description=pifan
+   After=multi-user.target
+[Service]
+   Type=idle
+   WorkingDirectory=/home/alex/lab/active
+   ExecStart=/usr/bin/python3 pifan.py
+[Install]
+   WantedBy=multi-user.target
+---
+
+sudo chmod 644 /etc/systemd/system/pifan.service
+sudo systemctl daemon-reload
+sudo systemctl enable pifan.service
+sudo systemctl daemon-reload
+
+sudo systemctl status pifan.service
+================================================================
+7. MQTT
+# it is used to take care of the smartHome MQTT network of devices. 
+# it handles the MQTT Server. The python client library is also installed.
+
+sudo apt update 
+sudo apt upgrade -y
+
+sudo apt-get install mosquitto mosquitto-clients
+
+sudo nano /etc/mosquitto/conf.d/mosquitto.conf
+---
+# Config file for mosquitto
+#
+# See mosquitto.conf(5) for more information.
+
+user mosquitto
+allow_duplicate_messages false
+
+listener 1883
+allow_anonymous true
+---
+
+sudo systemctl enable mosquitto.service
+
+sudo systemctl status mosquitto
+
+sudo pip3 install paho-mqtt
+
+================================================================
+8. install GOOGLE TTS
+
+sudo pip3 install --upgrade google-cloud-texttospeech
+
+sudo apt install mpg123
+
+
+================================================================
+9. CLEANING-UP unwanted software:
+Search for "Ubuntu Software" in applications menu
+
+Performance increase:
+!!!! THIS MAY CAUSE THE PROBLEM WITH THE DISPLAY ERRORS LATER ON!!!
+The problem is usually due to  setting up the power settings time for the display to turn of
+Also the display heat's up too much and turns off. It is placed too close to the Pi.
+
+-1. Disable Zswap and Enable Zram
+sudo apt install -y linux-modules-extra-raspi
+sudo apt install -y zram-tools
+sudo apt autoremove --purge -y zram-config
+
+#Edit the configuration file as shown below:
+sudo nano /etc/default/zramswap
+--
+
+ALGO=zstd
+#uncomment:
+PERCENT=50
+PRIORITY=100
+----
+#Zswap and Zram should not be used together. Run the command below to disable Zswap:
+sudo sed -i -e 's/zswap.enabled=1/zswap.enabled=0/' /boot/firmware/cmdline.txt
+
+-2. Overclock if you have fan and heat sinks
+sudo nano /boot/firmware/config.txt
+
+#paste the following lines at the end:
+---
+over_voltage=6
+arm_freq=2000
+gpu_freq=750
+---
+#Change dtoverlay=vc4-kms-v3d to dtoverlay=vc4-fkms-v3d to overclock the system successfully. The Full KMS overlay (vc4-kms-v3d) is not suitable for overclocking. Using the firmware overlay (vc4-fkms-v3d) allows the system to be properly overclocked.
+================================================================
+10. install Falcon and Chrome web browsers (lightweight browser)
+sudo snap install core
+sudo snap install falcon
+reboot
+
+Install Chromium web browser. Fast and with ability to start on fullscreen:
+
+You can install chromium browser on Ubuntu 22.04 either using the Apt package or the Snap package.
+When using the apt package, simply use:
+$ sudo apt install chromium-browser -y
+
+In the case of Snap first install the package, then use this command:
+$ sudo snap install chromium to install chromium
+================================================================
+11. Install other libraries
+sudo pip3 install pytz #usualy not needed, it is preinstalled.
+sudo pip3 install urllib3 #usualy not needed, it is preinstalled.
+================================================================
+12. Install PicoVoice (Porcupine, Rhino and Cheetah)
+#sudo apt-get install portaudio19-dev python3-pyaudio
+
+sudo pip3 install pvporcupine pvrecorder
+#sudo pip3 install pvrhino
+
+sudo pip3 install pvcheetah
+
+================================================================
+# fixing audio bugs in ubuntu 22.10:
+sudo nano /etc/pulse/default.pa 
+#add line:
+load-module module-udev-detect tsched=0
+
+================================================================
+14. Install SPACY
+sudo pip3 install --upgrade pip
+
+sudo pip3 install --upgrade tensorflow
+
+sudo pip3 install cython wheel
+BLIS_ARCH="generic" sudo pip3 install spacy --no-binary blis
+
+sudo pip3 uninstall numpy
+sudo pip3 install numpy
+
+python3 -m spacy download en_core_web_sm
+
+================================================================
+15.
+Install Flask micro web server
+
+sudo pip3 install Flask
+sudo pip3 install flask-mqtt  #used to run MQTT and flask app at the same time.
+
+sudo pip3 freeze | grep Flask
+# gets the flask version
+
+Flask comes with a development server that you can use out of the box but is not scalable and only allows one concurrent connection. In order to improve its performance then we will use gunicorn, a WSGI HTTP server.
+sudo pip3 install gunicorn
+sudo pip3 freeze | grep gunicorn
+
+==================================================================
+16.
+Set the default audio device if usb-audio is used:
+pactl list short sinks
+#Note the device name you want to use as default
+pactl set-default-sink alsa_output.usb-Jieli_Technology_UACDemoV1.0_1120022505080805-01.analog-stereo
+#This should work without giving you an error message.
+#Open the application "Startup Applications" (Should be preinstalled on Ubuntu)

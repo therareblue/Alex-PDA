@@ -1,0 +1,2 @@
+{"city": "Keighley", "lat": "53.87277", "lon": "-1.89658", "alt": "12.8", "tz": "Europe/London", "code": "GBR", "country": "United Kingdom", "post": "BD21 4", "str": "Bradford Road"}
+{"city": "Keighley", "lat": "53.87324", "lon": "-1.92744", "alt": "63.9", "tz": "Europe/London", "code": "GBR", "country": "United Kingdom", "post": "BD20 6HU", "str": "The Chase"}

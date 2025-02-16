@@ -1,0 +1,228 @@
+{\rtf1\ansi\ansicpg1252\cocoartf2639
+\cocoatextscaling0\cocoaplatform0{\fonttbl\f0\fswiss\fcharset0 Helvetica-Bold;\f1\fswiss\fcharset0 Helvetica;\f2\fswiss\fcharset0 Helvetica-Oblique;
+\f3\fswiss\fcharset0 Helvetica-BoldOblique;}
+{\colortbl;\red255\green255\blue255;\red0\green0\blue255;\red251\green2\blue7;\red0\green162\blue0;
+\red0\green0\blue0;\red0\green0\blue255;\red85\green142\blue40;\red0\green0\blue0;}
+{\*\expandedcolortbl;;\cssrgb\c1680\c19835\c100000;\cssrgb\c100000\c14913\c0;\cspthree\c21053\c66609\c803;
+\cssrgb\c0\c0\c0;\cssrgb\c1680\c19835\c100000;\cssrgb\c39975\c61335\c20601;\csgray\c0\c0;}
+{\info
+{\author Todor Mihaylov (Tony)}
+{\*\company The Rare Blue}
+{\*\copyright The Rare Blue}}\paperw11900\paperh16840\margl1440\margr1440\vieww10600\viewh20980\viewkind0
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\pardirnatural\partightenfactor0
+
+\f0\b\fs28 \cf0 \ul \ulc0 TERMS:\
+
+\f1\b0 \ulnone *
+\f0\b PDA
+\f1\b0 : 
+\f2\i Personal Digital Assistant
+\f1\i0 \
+*
+\f0\b Porcupine
+\f1\b0 : 
+\f2\i an API from Picovoice, to detect a special wake words spoken. It works offline (entirely on device. It only needs to check the API Key online, occasionally
+\f1\i0  \
+
+\f0\b *Rhino speech to intent: 
+\f2\i\b0 an API from Picovoice, to detect phrases and keywords, labeled to a specific commands, questions and feedback, that user is able to speak. This is easier, faster and more accurate way to detect an label speech, when the device has a specific functions to serve. 
+\f1\i0 \
+
+\f0\b * \
+\ul \
+I. STARTING THE PROGRAM\
+
+\f2\i\b0 \ulnone When program starts, the class AlexAPI is instancing, calling the __init__() method of the class. \
+This will initialise all the functionalities as follows:\
+
+\f3\b a)
+\f2\b0  Instancing
+\f3\b \cf2  class Senses 
+\f2\b0 \cf0 will start \cf3 all the senses threads\cf0  and the program will start sensing the environment\
+
+\f3\b b) 
+\f2\b0 Initialising the 
+\f3\b \cf2 class Listening\cf0  
+\f2\b0 will start the \cf3 listening functionality\cf0  and the program will start the listening process: \cf2 listen-for-wake-word \'97> listen-for-command (engaged) \'97> listen-for-command (not engaged) \'97> listen-for-wake-word\cf0 \
+c) When a wake-word is detected:\
+	\'97 there is a wake-up response, spoken back to the user to confirm PDA is now waiting (listening) for command from the user.\
+	\'97 The listening continue to (engaged) mode, where the commands may be spoken directly, without the needs to include \'93Alex\'94 in it. It will lasts for 1 minute. After that, that, the listening will continue to (not engaged) mode\'85\
+	\'97 In the (not engaged) mode, PDA continue to listen for command, but in order to call the respond() function from the class Response, the command should has a key \'93id\'94 = \'93Alex\'94, included.\
+d) Respond()\
+\
+e) While listening for command, a \'91ringing signal occurs, causing the listening to stop\'85 Instead of decoded listening fragment (wake-word index or intent dictionary), a ringing message is returned. If the ringing is because of 
+\f0\i0\b \ul \
+\
+\
+V. PROGRAM END\
+
+\f2\i\b0 \ulnone There is 
+\f3\b a special signal (a global flag) 
+\f2\b0 in the 
+\f3\b \cf2 class Signals
+\f2\b0 \cf0 , that every function and thread in the program listens for: 
+\f3\b \cf2 Signals.program_terminate.
+\f2\b0 \cf0  When set to \cf3 True\cf0 , 
+\f3\b all the loops and threads exists and the program goes to an end
+\f2\b0 . The signal ensures that no thread will stay running after the program ends.  
+\f0\i0\b \ul \
+\
+\
+\
+
+\f1\b0 \ulnone \
+\
+
+\f0\b \ul 1. RUN / \cf3 \ulc3 Alex.run()\cf0 \ulnone :
+\f1\b0 \
+  - 
+\f0\b Listen For Wake Word: 
+\f2\i\b0 This function represents the 
+\f3\b idle state 
+\f2\b0 of PDA*, where it uses \cf3 Porcupine\cf0 * to detect only a few phrases (\'93Alex you there?\'94, \'93Alex come up!\'94, etc.). 
+\f1\i0 \
+  - 
+\f0\b Note:
+\f1\b0  
+\f2\i The ocurance of a \cf2 ringing message\cf0  \cf3 will cause the listening loop to break\cf0 . Then the message will be spoken and PDA 
+\f3\b will enter a normal listening mode
+\f2\b0 , where all the speech is detected.\
+
+\f0\i0\b   -
+\f1\b0  
+\f0\b Listen For Command:
+\f1\b0  
+\f2\i The function uses \cf3 Rhino* \cf0 to detect and label a specific phrases and keywords, related to a command, question or feedback. It has two states: 
+\f3\b engaged
+\f2\b0  and 
+\f3\b disengaged
+\f2\b0 . 
+\f1\i0  \
+  
+\f0\b - Listen (engaged): 
+\f1\b0 \
+\
+\
+
+\f0\b \ul \ulc0 2. RINGING:
+\f1\b0 \ulnone \
+
+\f0\b   - Ringing message:
+\f1\b0  
+\f2\i There are a \cf3 getter and setter\cf2  \cf0 functions\cf2 ,\cf0  connecting to the attribute \cf2 _ringing_msg\cf0 .
+\f1\i0 \
+  - 
+\f3\i\b Every time the ringing message is read
+\f2\b0 ,
+\f3\b  \cf3 it is cleared.\cf0  
+\f2\b0 This will assure that the processes that rely on the variable (the '\cf2 while ringing_msg is not None'\cf0  loops) will be interrupted \cf3 only once \cf0 when the ringing message appears. Once the message is read, spoken and cleared, the processes will continue to do its job, until the next ringing is occur.
+\f1\i0 \
+\
+3. LISTEN:\
+\'85\
+\
+\
+
+\f0\b 4. SPEECH (class Speech):
+\f1\b0 \
+
+\f0\b \cf2   - Method speak(): 
+\f2\i\b0 \cf0 it \'91
+\f3\b says\'92 a string to the user
+\f2\b0 , using \cf3 Google SpeechToText API\cf0 . It has an ability 
+\f3\b to save an audio sample 
+\f2\b0 of the spoken \'91thought\'92, to be able to speak it again when OFFLINE. It also uses the saved audio sample, if available, instead of requesting the API, to reduce the traffic and latency to the Google service.\
+ 
+\f0\i0\b  \'97 Keeping History: 
+\f1\b0 s
+\f2\i aving every speech (thought) as a text line in a special memory (class Memory). 
+\f3\b Note: Only Speech.speak() is updating the output history of the Memory class. 
+\f2\b0 \
+
+\f1\i0 \
+\
+
+\f0\b 5. RESPOND (class Response)
+\f1\b0 \
+  
+\f0\b \'97 Answer NOT expected:
+\f1\b0  \
+    
+\f2\i \cf4 ** The intent is a regular request \cf5 (question or command), related to some of the skills PDA can do.\
+\cf4     ** The intent is a general question / command,\cf5  related to the latest request (latest record from the respond history) ('tell me again'. 'what about now')\
+  
+\f3\b \'97 ? There may be a case
+\f2\b0 , when the user respond something, related to the RINGING, (ringing_msg, or to a message from a function). TODO: There should be a history, keeping the last FEW spoken thinks.\
+\cf4     ** The intent is a feedback, \cf5 usually related to the latest request.\
+  
+\f3\b \'97 When the \cf2 respond(intent: str, slots: dict)
+\f2\b0 \cf5  is called, the following processes happen:\
+	
+\f0\i0\b 1. Look for a \cf3 \'93preq\'94 key in slots, 
+\f2\i\b0 \cf5 and 
+\f3\b generate an initial message
+\f2\b0  to be spoken (before the command execution starts). 
+\f3\b Note: 
+\f2\b0 The message will be immediately spoken inside the respond() method, because class 
+\f3\b Response inherits class Speech 
+\f2\b0 and its \'93speak()\'94 method.\
+	2. \
+  \'97 Answer EXPECTED:\
+
+\f3\b     \cf6 ** answer_expected
+\f2\b0 \cf5  is a 
+\f3\b dictionary type / or None
+\f2\b0 , keeping information for what \'91intent\'92  and \'91question\'92 \cf4 \
+
+\f1\i0 \cf0 \
+6. FUNCTIONS TO EXECUTE:\
+  \'97 There are two type of functions \'93GENERAL\'94 and \'93SKILLS\'94\
+  \'97 every function has an option to return a prior (init) message to the user to be spoken, before the function execute, and then the function returns the final answer, or if many answers, returns them all (for example if several sentences should be returned). This is achieved by \'91Generator\'92 pattern in Python, and \'91yield\'92 instead of \'91return\'92.\
+\
+\
+
+\f0\b 7. MEMORY (class Conversation Memory):
+\f1\b0  a class taking care of saving conversation records and calling for records to be used during the requests processing.\
+
+\f0\b   - Keeps records of the input (requests).
+\f1\b0 \
+
+\f0\b   - Keeps records of the output (the spoken messages): 
+\f1\b0 Records are made only from the functions of Speak class: Alex.speak(), because all the spoken things pass from there.\
+\
+8. REPORT:\
+  - Reporting class keeps a queue of reports, added from the functions.\
+  - When adding a new report, it is a dictionary structured: \{\'91msg\'92:str, \'91about\'92:str\}\
+  - The report queue uses LIFO structure, so the newest reports will be spoken first.\
+\
+\
+\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\pardirnatural\partightenfactor0
+\cf7 \cb8 """\
+1. the respond() is called only when there are VALID INTENT & SLOTS\
+2. answer NOT expected scenarios:\
+    * there is a user call for a task to do. \
+        - the asking is related to the some of the tasks from the history\
+        - the asking is new. Not related to anything.\
+        -- Finding the corresponding TASK and trying to execute. \
+        -- If more data needed:\
+            . save the request in the history\
+            . make 'answer_expected' True.\
+            . start the RINGING thread, so if user does not respond, to remind him.\
+            . return a message to the user, explaining what is needed\
+            \
+            \
+    * there is an answer from a Reporter RINGING ('what', 'tell me...', 'not now')\
+        - if the slots are confirmitive ('tell me', 'yes'...) it will return the reports...\
+        - if there is only one report, it will return it as message.\
+        - if there is more than one report, the message will be 'there are \{num\} new updates/reports, Sir'\
+            . the main function will look the EventReporter for the reports.\
+        .. actually, every time when the respond() returns an answer, \
+        THE MAIN function will check the 'reporter.is_reports' value. If True, add the reports to the speaking.\
+        \
+    * there is a feedback gifted from the user ("thank you", 'very good...', 'bed')\
+        - respond() function 'reacts' to the feedback and returns a 'thank you / you welcome' response.\
+"""\
+\
+
+\fs26 \
+}
