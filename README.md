@@ -12,6 +12,8 @@ For Speech Recognition, I am working on two versions:
 *Tested on Raspberry Pi 4 and Khadas Edge2 boards, but the version with 'picovoice' speech-to-text should work on Raspberry Pi zero 2W and Pi 3+.*
 
 
+* For Ubuntu install instructions on raspberry pi / Khadas, look the file INSTALL_INSTRUCTIONS.txt
+* Ensure you have your gtts_accnt.json google application credentials file placed in your main folder
 
-
+-- For application notes, look the file "Application_Notes.rtf"
 
